@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduFlow.ai</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script
+      src="https://kit.fontawesome.com/98ff2807b0.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body data-theme="dark">
+    <!-- Set dark mode by default -->
+    <div class="container">
+      <div class="header">
+        <h1>EduFlow.ai</h1>
+        <button id="themeToggle" class="btn action-btn">
+          <span class="icon"><i class="fa-solid fa-moon"></i></span>
+          <!-- Moon icon for dark theme -->
+        </button>
+      </div>
+      <div id="result" class="result-section">
+        <!-- Content generated here -->
+      </div>
+      <div class="input-section">
+        <input
+          type="text"
+          id="topic"
+          placeholder="Enter a topic"
+          class="input-box"
+        />
+        <select id="level" class="input-box">
+          <option value="beginner">Beginner</option>
+          <option value="advanced">Advanced</option>
+        </select>
+        <button id="generateBtn" class="btn action-btn">
+          <span id="buttonIcon" class="icon"
+            ><i class="fa-solid fa-arrow-up"></i
+          ></span>
+          <!-- Up Arrow icon -->
+        </button>
+      </div>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
