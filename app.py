@@ -4,7 +4,7 @@ import google.generativeai as genai
 app = Flask(__name__)
 
 # Configure Google Gemini API key
-GOOGLE_API_KEY = 'AIzaSyCdPf9CwQAmhH3S8qEOOJR8FSuT-cS6KRg'  # Replace with your actual key
+GOOGLE_API_KEY = 'GOOGLE_API_KEY'  # Replace with your actual key
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Function to process the response for educational purposes based on the level
