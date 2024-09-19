@@ -1,40 +1,36 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // Load sessions from local storage on page load
+  loadSessions();
+
   document
     .getElementById("generateBtn")
     .addEventListener("click", generateContent);
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
+  document
+    .getElementById("deleteAllBtnInPanel")
+    .addEventListener("click", deleteAllSessions);
 
-  // Set the theme to dark mode by default
+  // Set the theme to dark mode by default if no theme is set
   if (!document.body.hasAttribute("data-theme")) {
     document.body.setAttribute("data-theme", "dark");
   }
 });
 
-let stopTyping = false; // Control flag for stopping the typing effect
-
 function generateContent() {
   const topic = document.getElementById("topic").value;
-  const level = document.getElementById("level").value;
+  const levelSlider = document.getElementById("levelSlider");
+  const level = levelSlider.checked ? "advanced" : "beginner"; // Adjusted logic for checkbox
   const resultDiv = document.getElementById("result");
   const actionBtn = document.getElementById("generateBtn");
-  const loadingIndicator = document.getElementById("loading");
 
   if (topic.trim() === "") {
     alert("Please enter a topic.");
     return;
   }
 
-  //   // Show the loading indicator
-  //   loadingIndicator.style.display = "flex";
-  //   resultDiv.innerHTML = ""; // Clear previous results
-
-  // Show the stop button and change the action button icon
-  actionBtn.innerHTML = `<span id="buttonIcon" class="icon">&#9632;</span>`; // Square button icon
-
-  // Reset the stopTyping flag in case it was set previously
+  actionBtn.innerHTML = `<span id="buttonIcon" class="icon">&#9632;</span>`; // Stop icon
   stopTyping = false;
 
-  // Make a POST request to the Flask server
   fetch("/generate", {
     method: "POST",
     headers: {
@@ -50,20 +46,19 @@ function generateContent() {
       if (data.error) {
         resultDiv.innerHTML = `<strong>Error:</strong> ${data.error}`;
       } else {
-        // Process response text
         let formattedResponse = data.response
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold text
-          .replace(/\*/g, "") // Remove any remaining stars
-          .replace(/##\s*(.*?)(\n|$)/g, "<h2>$1</h2>") // Replace ## with <h2>
-          .replace(/###\s*(.*?)(\n|$)/g, "<h3>$1</h3>") // Replace ### with <h3>
-          .replace(/\n/g, "<br>") // Convert newlines to <br>
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*/g, "")
+          .replace(/##\s*(.*?)(\n|$)/g, "<h2>$1</h2>")
+          .replace(/###\s*(.*?)(\n|$)/g, "<h3>$1</h3>")
+          .replace(/\n/g, "<br>")
           .trim();
 
-        // Clear previous content and loading spinner
         resultDiv.innerHTML = "";
-
-        // Call the function to type out the content with HTML interpretation
         typeContentWithHTML(resultDiv, formattedResponse);
+
+        // Auto-generate and save session
+        saveSession(topic, formattedResponse);
       }
     })
     .catch((error) => {
@@ -71,36 +66,21 @@ function generateContent() {
       console.error("Error:", error);
     })
     .finally(() => {
-      // Hide the loading indicator
-      loadingIndicator.style.display = "none";
-
-      // Reset the action button icon to up arrow
-      if (!stopTyping) {
-        actionBtn.innerHTML = `<span id="buttonIcon" class="icon"><i class="fa-solid fa-arrow-up"></i></span>`; // Up Arrow
-      }
+      actionBtn.innerHTML = `<span id="buttonIcon" class="icon"><i class="fa-solid fa-arrow-up"></i></span>`; // Up Arrow
     });
 }
 
-// Function to stop the content generation
-function stopContentGeneration() {
-  stopTyping = true; // Set the flag to stop typing
-  document.getElementById(
-    "generateBtn"
-  ).innerHTML = `<span id="buttonIcon" class="icon"><i class="fa-solid fa-arrow-up"></i></span>`; // Up Arrow
-}
-
-// Function to generate letter-by-letter typing effect and interpret HTML
+// Function to simulate typing effect
 function typeContentWithHTML(element, content) {
-  let tempDiv = document.createElement("div"); // Create a temporary div to hold the HTML
-  tempDiv.innerHTML = content; // Inject the formatted content as HTML
-  let chars = Array.from(tempDiv.childNodes); // Convert child nodes to an array for processing
+  let tempDiv = document.createElement("div");
+  tempDiv.innerHTML = content;
+  let chars = Array.from(tempDiv.childNodes);
 
   let index = 0;
-  const speed = 50; // Typing speed in milliseconds
+  const speed = 50;
 
   function typeLetter() {
     if (index < chars.length && !stopTyping) {
-      // Append the next character or HTML element to the resultDiv
       element.appendChild(chars[index]);
       index++;
       setTimeout(typeLetter, speed);
@@ -111,14 +91,95 @@ function typeContentWithHTML(element, content) {
     }
   }
 
-  // Clear previous content and start typing out the new content
   element.innerHTML = "";
   typeLetter();
 }
 
-// Function to toggle between light and dark themes
+// Save session to localStorage
+function saveSession(topic, content) {
+  const sessionData = {
+    topic: topic,
+    content: content,
+    timestamp: new Date().toLocaleString(),
+  };
+
+  let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+  sessions.push(sessionData);
+  localStorage.setItem("sessions", JSON.stringify(sessions));
+
+  // Update session panel
+  loadSessions();
+}
+
+// Load sessions from localStorage and display in the session panel
+function loadSessions() {
+  const sessionsPanel = document.getElementById("sessionsPanel");
+  const sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+
+  sessionsPanel.innerHTML = ""; // Clear existing sessions
+
+  if (sessions.length === 0) {
+    sessionsPanel.innerHTML = `<p>No sessions available.</p>`;
+    return;
+  }
+
+  sessions.forEach((session, index) => {
+    const sessionElement = document.createElement("div");
+    sessionElement.classList.add("session");
+    sessionElement.innerHTML = `
+      <strong>Topic:</strong> ${session.topic}<br>
+      <strong>Date:</strong> ${session.timestamp}<br>
+      <button class="loadSessionBtn" data-index="${index}">Load</button>
+      <button class="deleteSessionBtn" data-index="${index}">Delete</button>
+    `;
+    sessionsPanel.appendChild(sessionElement);
+  });
+
+  // Add event listeners for load and delete buttons
+  document
+    .querySelectorAll(".loadSessionBtn")
+    .forEach((btn) => btn.addEventListener("click", loadSession));
+  document
+    .querySelectorAll(".deleteSessionBtn")
+    .forEach((btn) => btn.addEventListener("click", deleteSession));
+}
+
+// Load a session from localStorage
+function loadSession(event) {
+  const index = event.target.getAttribute("data-index");
+  const sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+  const session = sessions[index];
+
+  if (session) {
+    document.getElementById("topic").value = session.topic;
+    document.getElementById("result").innerHTML = session.content;
+  }
+}
+
+// Delete a single session from localStorage
+function deleteSession(event) {
+  const index = event.target.getAttribute("data-index");
+  let sessions = JSON.parse(localStorage.getItem("sessions")) || [];
+
+  sessions.splice(index, 1);
+  localStorage.setItem("sessions", JSON.stringify(sessions));
+
+  // Reload sessions
+  loadSessions();
+}
+
+// Delete all sessions from localStorage
+function deleteAllSessions() {
+  if (confirm("Are you sure you want to delete all sessions?")) {
+    localStorage.removeItem("sessions");
+    loadSessions();
+  }
+}
+
+// Toggle theme between dark and light mode
 function toggleTheme() {
   const currentTheme = document.body.getAttribute("data-theme");
   const newTheme = currentTheme === "dark" ? "light" : "dark";
   document.body.setAttribute("data-theme", newTheme);
+  console.log(`Theme changed to: ${newTheme}`); // Debugging output
 }
