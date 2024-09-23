@@ -6,9 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("generateBtn")
     .addEventListener("click", generateContent);
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
-  document
-    .getElementById("deleteAllBtnInPanel")
-    .addEventListener("click", deleteAllSessions);
+  // document.getElementById("deleteAllBtnInPanel");
+  // .addEventListener("click", deleteAllSessions);
 
   // Set the theme to dark mode by default if no theme is set
   if (!document.body.hasAttribute("data-theme")) {
@@ -169,12 +168,12 @@ function deleteSession(event) {
 }
 
 // Delete all sessions from localStorage
-function deleteAllSessions() {
-  if (confirm("Are you sure you want to delete all sessions?")) {
-    localStorage.removeItem("sessions");
-    loadSessions();
-  }
-}
+// function deleteAllSessions() {
+//   if (confirm("Are you sure you want to delete all sessions?")) {
+//     localStorage.removeItem("sessions");
+//     loadSessions();
+//   }
+// }
 
 // Toggle theme between dark and light mode
 function toggleTheme() {
