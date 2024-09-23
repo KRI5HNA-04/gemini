@@ -1,0 +1,1 @@
+EduFlow.ai is an AI-powered learning companion that leverages Gemini's advanced language understanding and generation capabilities to create a personalized and engaging learning experience for students across various subjects.
