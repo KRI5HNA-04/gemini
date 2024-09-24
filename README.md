@@ -1,7 +1,7 @@
 # EduFlow.ai
 EduFlow.ai is an AI-powered learning companion that leverages Gemini's advanced language understanding and generation capabilities to create a personalized and engaging learning experience for students across various subjects.
 
-### Checkout the site: https://eduflow-bhdfya9t7-kri5hna-04s-projects.vercel.app/
+### Checkout the site: https://eduflow-delta.vercel.app/
 ## Working
  -> In this program there are two modes: (i) Basic/Beginner and (ii) Advanced. In Beginner or Basic mode the content produced will be short and beginner friendly whereas in Advanced mode the content produced will be for more elaborative and will provide deep knowledge regarding the searched topic.
 
